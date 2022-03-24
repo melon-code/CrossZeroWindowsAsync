@@ -33,7 +33,8 @@
             this.referenceButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
             this.referenceButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.referenceButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 45F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.referenceButton.Location = new System.Drawing.Point(259, 124);
+            this.referenceButton.Location = new System.Drawing.Point(9, 9);
+            this.referenceButton.Margin = new System.Windows.Forms.Padding(0);
             this.referenceButton.Name = "referenceButton";
             this.referenceButton.Size = new System.Drawing.Size(82, 82);
             this.referenceButton.TabIndex = 0;
@@ -45,7 +46,7 @@
             // 
             this.endGameLabel.AutoSize = true;
             this.endGameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.endGameLabel.Location = new System.Drawing.Point(350, 286);
+            this.endGameLabel.Location = new System.Drawing.Point(12, 102);
             this.endGameLabel.Name = "endGameLabel";
             this.endGameLabel.Size = new System.Drawing.Size(90, 26);
             this.endGameLabel.TabIndex = 1;
@@ -57,7 +58,7 @@
             this.allAIButton.AutoSize = true;
             this.allAIButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.allAIButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.allAIButton.Location = new System.Drawing.Point(293, 352);
+            this.allAIButton.Location = new System.Drawing.Point(9, 131);
             this.allAIButton.Name = "allAIButton";
             this.allAIButton.Size = new System.Drawing.Size(191, 47);
             this.allAIButton.TabIndex = 2;
@@ -71,7 +72,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(381, 379);
             this.Controls.Add(this.allAIButton);
             this.Controls.Add(this.endGameLabel);
             this.Controls.Add(this.referenceButton);

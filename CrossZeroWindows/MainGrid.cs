@@ -24,8 +24,8 @@ namespace CrossZeroWindows {
         const string draw = "Ничья!";
         const int topStart = 20;
         const int leftStart = 20;
-        const int verticalInterval = 10;
-        const int horizontalInterval = 10;
+        const int verticalInterval = 5;
+        const int horizontalInterval = 5;
         const int buttonHeight = 82;
         const int buttonWidth = 82;
 
@@ -35,9 +35,6 @@ namespace CrossZeroWindows {
         Point selectedPoint;
         TTCGame game;
         int gridEndTop;
-
-        int ButtonHeight => referenceButton.Height;
-        int ButtonWidth => referenceButton.Width;
 
         public MainGrid(int fieldSize, bool player1AI, bool player2AI) {
             InitializeComponent();
@@ -58,16 +55,15 @@ namespace CrossZeroWindows {
                     Button button = CreateButton(top, left, new Point(i, j), !allAI);
                     Controls.Add(button);
                     buttons.Add(button);
-                    left += ButtonWidth + horizontalInterval;
+                    left += buttonWidth + horizontalInterval;
                 }
                 left = leftStart;
-                top += ButtonHeight + verticalInterval;
+                top += buttonHeight + verticalInterval;
             }
             gridEndTop = top;
-            if (allAI) {
-                allAIButton.Location = new Point(AlignCenter(allAIButton.Width), gridEndTop);
-                allAIButton.Visible = true;
-            }
+            Width = buttonWidth * size + horizontalInterval * (size - 1) + leftStart * 3;
+            if (allAI) 
+                MakeVisible(allAIButton);
             ResumeLayout(false);
         }
 
@@ -89,6 +85,11 @@ namespace CrossZeroWindows {
         void DisableButton(Button button, string updatedText) {
             button.Text = updatedText;
             button.Enabled = false;
+        }
+
+        void MakeVisible(Control control) {
+            control.Location = new Point(AlignCenter(control.Width), gridEndTop);
+            control.Visible = true;
         }
 
         bool MakeTurn(bool update) {
@@ -118,8 +119,7 @@ namespace CrossZeroWindows {
                         endGameLabel.Text = draw;
                         break;
                 }
-                endGameLabel.Location = new Point(AlignCenter(endGameLabel.Width), gridEndTop);
-                endGameLabel.Visible = true;
+                MakeVisible(endGameLabel);
                 return false;
             }
             return true;
@@ -165,31 +165,6 @@ namespace CrossZeroWindows {
 
         private void allAIButton_Click(object sender, EventArgs e) {
             MakeTurn(true);
-        }
-    }
-
-    public static class ButtonExtension {
-        public static Point GetPoint(this Button button) {
-            if (!(button.Tag is Point point))
-                throw new ArgumentException();
-            return point;
-        }
-
-        public static bool IsEmpty(this Button button) {
-            return string.IsNullOrEmpty(button.Text);
-        }
-    }
-
-    public class WindowsPlayer : IPlayer {
-        readonly Func<Point> makeTurn;
-
-        public WindowsPlayer(Func<Point> getPoint) {
-            makeTurn = getPoint;
-        }
-
-        public Coordinate MakeTurn() {
-            Point point = makeTurn();
-            return new Coordinate(point.X, point.Y);
         }
     }
 }
