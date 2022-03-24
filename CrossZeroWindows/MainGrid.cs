@@ -55,7 +55,7 @@ namespace CrossZeroWindows {
             SuspendLayout();
             for (int i = 0; i < size; i++) {
                 for (int j = 0; j < size; j++) {
-                    Button button = CreateButton(top, left, new Point(i, j)); //disable buttons for allAI
+                    Button button = CreateButton(top, left, new Point(i, j), !allAI);
                     Controls.Add(button);
                     buttons.Add(button);
                     left += ButtonWidth + horizontalInterval;
@@ -63,7 +63,11 @@ namespace CrossZeroWindows {
                 left = leftStart;
                 top += ButtonHeight + verticalInterval;
             }
-            gridEndTop = top; //add button for 2 ai
+            gridEndTop = top;
+            if (allAI) {
+                allAIButton.Location = new Point(AlignCenter(allAIButton.Width), gridEndTop);
+                allAIButton.Visible = true;
+            }
             ResumeLayout(false);
         }
 
@@ -100,6 +104,8 @@ namespace CrossZeroWindows {
                     if (button.Enabled)
                         button.Enabled = false;
                 });
+                if (allAI)
+                    allAIButton.Visible = false;
                 game.TryGetEndResult(out EndResult result);
                 switch (result) {
                     case EndResult.CrossWin:
@@ -138,7 +144,7 @@ namespace CrossZeroWindows {
             });
         }
 
-        Button CreateButton(int top, int left, Point point) {
+        Button CreateButton(int top, int left, Point point, bool enabled) {
             int currentNumber = point.X * size + point.Y;
             Button button = new Button();
             button.FlatAppearance.MouseOverBackColor = Color.FromArgb(192, 255, 192);
@@ -151,9 +157,14 @@ namespace CrossZeroWindows {
             button.Text = string.Empty;
             button.UseVisualStyleBackColor = true;
             button.Visible = true;
+            button.Enabled = enabled;
             button.Tag = point;
             button.Click += ButtonClick;
             return button;
+        }
+
+        private void allAIButton_Click(object sender, EventArgs e) {
+            MakeTurn(true);
         }
     }
 

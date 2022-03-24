@@ -25,6 +25,7 @@
         private void InitializeComponent() {
             this.referenceButton = new System.Windows.Forms.Button();
             this.endGameLabel = new System.Windows.Forms.Label();
+            this.allAIButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // referenceButton
@@ -51,12 +52,27 @@
             this.endGameLabel.Text = "Победа";
             this.endGameLabel.Visible = false;
             // 
+            // allAIButton
+            // 
+            this.allAIButton.AutoSize = true;
+            this.allAIButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.allAIButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.allAIButton.Location = new System.Drawing.Point(293, 352);
+            this.allAIButton.Name = "allAIButton";
+            this.allAIButton.Size = new System.Drawing.Size(191, 47);
+            this.allAIButton.TabIndex = 2;
+            this.allAIButton.Text = "Следующий ход";
+            this.allAIButton.UseVisualStyleBackColor = true;
+            this.allAIButton.Visible = false;
+            this.allAIButton.Click += new System.EventHandler(this.allAIButton_Click);
+            // 
             // MainGrid
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.allAIButton);
             this.Controls.Add(this.endGameLabel);
             this.Controls.Add(this.referenceButton);
             this.Name = "MainGrid";
@@ -72,5 +88,6 @@
 
         private System.Windows.Forms.Button referenceButton;
         private System.Windows.Forms.Label endGameLabel;
+        private System.Windows.Forms.Button allAIButton;
     }
 }
