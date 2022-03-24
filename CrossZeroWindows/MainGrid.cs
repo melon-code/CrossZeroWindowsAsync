@@ -19,16 +19,19 @@ namespace CrossZeroWindows {
 
         const string crossButtonText = "X";
         const string zeroButtonText = "O";
-        const string crossWin = "Крустики победили!";
+        const string crossWin = "Крестики победили!";
         const string zeroWin = "Нолики победили!";
         const string draw = "Ничья!";
         const int topStart = 20;
         const int leftStart = 20;
         const int verticalInterval = 10;
         const int horizontalInterval = 10;
+        const int buttonHeight = 82;
+        const int buttonWidth = 82;
 
         readonly int size;
         readonly IList<Button> buttons = new List<Button>();
+        readonly bool allAI;
         Point selectedPoint;
         TTCGame game;
         int gridEndTop;
@@ -36,11 +39,14 @@ namespace CrossZeroWindows {
         int ButtonHeight => referenceButton.Height;
         int ButtonWidth => referenceButton.Width;
 
-        public MainGrid(int fieldSize) {
+        public MainGrid(int fieldSize, bool player1AI, bool player2AI) {
             InitializeComponent();
             size = fieldSize;
+            allAI = player1AI && player2AI;
             CreateGrid();
-            game = new TTCGame(fieldSize, new WindowsPlayer(() => selectedPoint), new AI());
+            game = new TTCGame(fieldSize, CreatePlayer(player1AI), CreatePlayer(player2AI));
+            if (!allAI && player1AI)
+                MakeTurn(true);
         }
 
         void CreateGrid() {
@@ -49,7 +55,7 @@ namespace CrossZeroWindows {
             SuspendLayout();
             for (int i = 0; i < size; i++) {
                 for (int j = 0; j < size; j++) {
-                    Button button = CreateButton(top, left, new Point(i, j));
+                    Button button = CreateButton(top, left, new Point(i, j)); //disable buttons for allAI
                     Controls.Add(button);
                     buttons.Add(button);
                     left += ButtonWidth + horizontalInterval;
@@ -57,8 +63,14 @@ namespace CrossZeroWindows {
                 left = leftStart;
                 top += ButtonHeight + verticalInterval;
             }
-            gridEndTop = top;
+            gridEndTop = top; //add button for 2 ai
             ResumeLayout(false);
+        }
+
+        IPlayer CreatePlayer(bool isAI) {
+            if (isAI)
+                return new AI();
+            return new WindowsPlayer(() => selectedPoint);
         }
 
         void ButtonClick(object sender, EventArgs e) {
@@ -66,8 +78,8 @@ namespace CrossZeroWindows {
                 throw new ArgumentNullException();
             selectedPoint = button.GetPoint();
             DisableButton(button, game.CurrentMark == Marks.Cross ? crossButtonText : zeroButtonText);
-            if (MakeTurn(null))
-                MakeTurn(UpdateGrid);
+            if (MakeTurn(false))
+                MakeTurn(true);
         }
 
         void DisableButton(Button button, string updatedText) {
@@ -75,12 +87,19 @@ namespace CrossZeroWindows {
             button.Enabled = false;
         }
 
+        bool MakeTurn(bool update) {
+            return update ? MakeTurn(UpdateGridAfterTurn) : MakeTurn(null);
+        }
+
         bool MakeTurn(Action update) {
             game.MakePlayerTurn();
             update?.Invoke();
             if (game.IsEnd) {
-                //disable buttons
-                endGameLabel.Location = new Point(leftStart, gridEndTop);
+                UpdateGrid((i, j) => {
+                    var button = buttons[i * size + j];
+                    if (button.Enabled)
+                        button.Enabled = false;
+                });
                 game.TryGetEndResult(out EndResult result);
                 switch (result) {
                     case EndResult.CrossWin:
@@ -93,21 +112,30 @@ namespace CrossZeroWindows {
                         endGameLabel.Text = draw;
                         break;
                 }
+                endGameLabel.Location = new Point(AlignCenter(endGameLabel.Width), gridEndTop);
                 endGameLabel.Visible = true;
                 return false;
             }
             return true;
         }
 
-        void UpdateGrid() {
-            var grid = game.GameField;
-            for (int i = 0; i < size; i++) 
-                for (int j = 0; j < size; j++) {
-                    var button = buttons[i * size + j];
-                    var cell = grid[i, j];
-                    if (button.IsEmpty() && cell != Cell.Empty) 
-                        DisableButton(button, MarkToString(cell));
-                }
+        int AlignCenter(int width) {
+            return (Width - width) / 2;
+        }
+
+        void UpdateGrid(Action<int, int> updateFunc) {
+            for (int i = 0; i < size; i++)
+                for (int j = 0; j < size; j++)
+                    updateFunc(i, j);
+        }
+
+        void UpdateGridAfterTurn() {
+            UpdateGrid((i, j) => {
+                var button = buttons[i * size + j];
+                var cell = game.GameField[i, j];
+                if (button.IsEmpty() && cell != Cell.Empty)
+                    DisableButton(button, MarkToString(cell));
+            });
         }
 
         Button CreateButton(int top, int left, Point point) {
@@ -118,7 +146,7 @@ namespace CrossZeroWindows {
             button.Font = new Font("Microsoft Sans Serif", 45F, FontStyle.Regular, GraphicsUnit.Point, 204);
             button.Location = new Point(left, top);
             button.Name = $"button{currentNumber}";
-            button.Size = new Size(82, 82); //const size
+            button.Size = new Size(buttonWidth, buttonHeight);
             button.TabIndex = currentNumber;
             button.Text = string.Empty;
             button.UseVisualStyleBackColor = true;
