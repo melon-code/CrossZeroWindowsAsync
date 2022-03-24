@@ -26,6 +26,8 @@
             this.referenceButton = new System.Windows.Forms.Button();
             this.endGameLabel = new System.Windows.Forms.Label();
             this.allAIButton = new System.Windows.Forms.Button();
+            this.repeatButton = new System.Windows.Forms.Button();
+            this.toMainMenuButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // referenceButton
@@ -67,12 +69,40 @@
             this.allAIButton.Visible = false;
             this.allAIButton.Click += new System.EventHandler(this.allAIButton_Click);
             // 
+            // repeatButton
+            // 
+            this.repeatButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.repeatButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.repeatButton.Location = new System.Drawing.Point(33, 215);
+            this.repeatButton.Name = "repeatButton";
+            this.repeatButton.Size = new System.Drawing.Size(134, 34);
+            this.repeatButton.TabIndex = 3;
+            this.repeatButton.Text = "Повторить";
+            this.repeatButton.UseVisualStyleBackColor = true;
+            this.repeatButton.Visible = false;
+            this.repeatButton.Click += new System.EventHandler(this.repeatButton_Click);
+            // 
+            // toMainMenuButton
+            // 
+            this.toMainMenuButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.toMainMenuButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.toMainMenuButton.Location = new System.Drawing.Point(9, 255);
+            this.toMainMenuButton.Name = "toMainMenuButton";
+            this.toMainMenuButton.Size = new System.Drawing.Size(191, 43);
+            this.toMainMenuButton.TabIndex = 4;
+            this.toMainMenuButton.Text = "В главное меню";
+            this.toMainMenuButton.UseVisualStyleBackColor = true;
+            this.toMainMenuButton.Visible = false;
+            this.toMainMenuButton.Click += new System.EventHandler(this.toMainMenuButton_Click);
+            // 
             // MainGrid
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(381, 379);
+            this.Controls.Add(this.toMainMenuButton);
+            this.Controls.Add(this.repeatButton);
             this.Controls.Add(this.allAIButton);
             this.Controls.Add(this.endGameLabel);
             this.Controls.Add(this.referenceButton);
@@ -90,5 +120,7 @@
         private System.Windows.Forms.Button referenceButton;
         private System.Windows.Forms.Label endGameLabel;
         private System.Windows.Forms.Button allAIButton;
+        private System.Windows.Forms.Button repeatButton;
+        private System.Windows.Forms.Button toMainMenuButton;
     }
 }

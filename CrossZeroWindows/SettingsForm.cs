@@ -25,15 +25,17 @@ namespace CrossZeroWindows {
 
         private void startButton_Click(object sender, EventArgs e) {
             Hide();
-            MainGrid grid = new MainGrid((int)numericUpDown1.Value, comboBox1.SelectedIndex == aiIndex, comboBox2.SelectedIndex == aiIndex);
-            switch (grid.ShowDialog()) {
+            MainGrid grid;
+            DialogResult result;
+            do {
+                grid = new MainGrid((int)numericUpDown1.Value, comboBox1.SelectedIndex == aiIndex, comboBox2.SelectedIndex == aiIndex);
+                result = grid.ShowDialog();
+            } while (result == DialogResult.Retry);
+            switch (result) {
                 case DialogResult.Cancel:
                     Close();
                     break;
-                case DialogResult.Retry:
-                    Show();
-                    break;
-                case DialogResult.Yes:
+                case DialogResult.Ignore:
                     Show();
                     break;
                 default:

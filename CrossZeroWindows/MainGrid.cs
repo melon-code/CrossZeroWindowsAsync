@@ -63,7 +63,7 @@ namespace CrossZeroWindows {
             gridEndTop = top;
             Width = buttonWidth * size + horizontalInterval * (size - 1) + leftStart * 3;
             if (allAI) 
-                MakeVisible(allAIButton);
+                MakeVisible(allAIButton, false);
             ResumeLayout(false);
         }
 
@@ -87,9 +87,11 @@ namespace CrossZeroWindows {
             button.Enabled = false;
         }
 
-        void MakeVisible(Control control) {
+        void MakeVisible(Control control, bool updateGridEndTop) {
             control.Location = new Point(AlignCenter(control.Width), gridEndTop);
             control.Visible = true;
+            if (updateGridEndTop)
+                gridEndTop += control.Height + verticalInterval;
         }
 
         bool MakeTurn(bool update) {
@@ -119,7 +121,9 @@ namespace CrossZeroWindows {
                         endGameLabel.Text = draw;
                         break;
                 }
-                MakeVisible(endGameLabel);
+                MakeVisible(endGameLabel, true);
+                MakeVisible(repeatButton, true);
+                MakeVisible(toMainMenuButton, false);
                 return false;
             }
             return true;
@@ -163,8 +167,21 @@ namespace CrossZeroWindows {
             return button;
         }
 
+        void CloseWindow(DialogResult result) {
+            DialogResult = result;
+            Close();
+        }
+
         private void allAIButton_Click(object sender, EventArgs e) {
             MakeTurn(true);
+        }
+
+        private void repeatButton_Click(object sender, EventArgs e) {
+            CloseWindow(DialogResult.Retry);
+        }
+
+        private void toMainMenuButton_Click(object sender, EventArgs e) {
+            CloseWindow(DialogResult.Ignore);
         }
     }
 }
