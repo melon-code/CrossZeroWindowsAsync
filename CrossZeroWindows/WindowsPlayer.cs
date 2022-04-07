@@ -1,18 +1,24 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading;
 using CrossZeroAPI;
 
 namespace CrossZeroWindows {
     public class WindowsPlayer : IPlayer {
-        readonly Func<Point> makeTurn;
+        const int interval = 50;
 
-        public WindowsPlayer(Func<Point> getPoint) {
-            makeTurn = getPoint;
+        readonly PlayerPoint point;
+
+        public WindowsPlayer(PlayerPoint playerPoint) {
+            point = playerPoint;
         }
 
         public Coordinate MakeTurn() {
-            Point point = makeTurn();
-            return new Coordinate(point.X, point.Y);
+            while (!point.Selected) {
+                Thread.Sleep(interval);
+            }
+            point.Selected = false;
+            return new Coordinate(point.Value.X, point.Value.Y);
         }
     }
 }

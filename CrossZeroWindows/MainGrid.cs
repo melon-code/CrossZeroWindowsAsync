@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CrossZeroAPI;
@@ -32,18 +33,22 @@ namespace CrossZeroWindows {
         readonly int size;
         readonly IList<Button> buttons = new List<Button>();
         readonly bool allAI;
-        Point selectedPoint;
-        TTCGame game;
+        readonly TTCWindowsProcessor processor;
+        PlayerPoint selectedPoint = new PlayerPoint();
         int gridEndTop;
+
+        delegate void UpdateGridDelegate(ReadOnlyTable grid);
+        delegate void ShowResultDelegate(ReadOnlyTable grid, EndResult result);
 
         public MainGrid(int fieldSize, bool player1AI, bool player2AI) {
             InitializeComponent();
             size = fieldSize;
             allAI = player1AI && player2AI;
             CreateGrid();
-            game = new TTCGame(fieldSize, CreatePlayer(player1AI), CreatePlayer(player2AI));
-            if (!allAI && player1AI)
-                MakeTurn(true);
+            processor = new TTCWindowsProcessor(fieldSize, CreatePlayer(player1AI), CreatePlayer(player2AI), allAI);
+            processor.RenderField += UpdateGridAfterTurn;
+            processor.RenderResult += ShowResult;
+            processor.PlayAsync();
         }
 
         void CreateGrid() {
@@ -70,16 +75,14 @@ namespace CrossZeroWindows {
         IPlayer CreatePlayer(bool isAI) {
             if (isAI)
                 return new AI();
-            return new WindowsPlayer(() => selectedPoint);
+            return new WindowsPlayer(selectedPoint);
         }
 
         void ButtonClick(object sender, EventArgs e) {
             if (!(sender is Button button))
                 throw new ArgumentNullException();
-            selectedPoint = button.GetPoint();
-            DisableButton(button, game.CurrentMark == Marks.Cross ? crossButtonText : zeroButtonText);
-            if (MakeTurn(false))
-                MakeTurn(true);
+            selectedPoint.Value = button.GetPoint();
+            selectedPoint.Selected = true;
         }
 
         void DisableButton(Button button, string updatedText) {
@@ -94,14 +97,9 @@ namespace CrossZeroWindows {
                 gridEndTop += control.Height + verticalInterval;
         }
 
-        bool MakeTurn(bool update) {
-            return update ? MakeTurn(UpdateGridAfterTurn) : MakeTurn(null);
-        }
-
-        bool MakeTurn(Action update) {
-            game.MakePlayerTurn();
-            update?.Invoke();
-            if (game.IsEnd) {
+        public void ShowResult(ReadOnlyTable grid, EndResult result) {
+            if (!InvokeRequired) {
+                UpdateGridAfterTurn(grid);
                 UpdateGrid((i, j) => {
                     var button = buttons[i * size + j];
                     if (button.Enabled)
@@ -109,7 +107,6 @@ namespace CrossZeroWindows {
                 });
                 if (allAI)
                     allAIButton.Visible = false;
-                game.TryGetEndResult(out EndResult result);
                 switch (result) {
                     case EndResult.CrossWin:
                         endGameLabel.Text = crossWin;
@@ -124,9 +121,9 @@ namespace CrossZeroWindows {
                 MakeVisible(endGameLabel, true);
                 MakeVisible(repeatButton, true);
                 MakeVisible(toMainMenuButton, false);
-                return false;
             }
-            return true;
+            else
+                Invoke(new ShowResultDelegate(ShowResult), new object[] { grid, result });
         }
 
         int AlignCenter(int width) {
@@ -139,13 +136,17 @@ namespace CrossZeroWindows {
                     updateFunc(i, j);
         }
 
-        void UpdateGridAfterTurn() {
-            UpdateGrid((i, j) => {
-                var button = buttons[i * size + j];
-                var cell = game.GameField[i, j];
-                if (button.IsEmpty() && cell != Cell.Empty)
-                    DisableButton(button, MarkToString(cell));
-            });
+        public void UpdateGridAfterTurn(ReadOnlyTable grid) {
+            if (!InvokeRequired) {
+                UpdateGrid((i, j) => {
+                    var button = buttons[i * size + j];
+                    var cell = grid[i, j];
+                    if (button.IsEmpty() && cell != Cell.Empty)
+                        DisableButton(button, MarkToString(cell));
+                });
+            }
+            else 
+                Invoke(new UpdateGridDelegate(UpdateGridAfterTurn), new object[] { grid });
         }
 
         Button CreateButton(int top, int left, Point point, bool enabled) {
@@ -173,7 +174,7 @@ namespace CrossZeroWindows {
         }
 
         private void allAIButton_Click(object sender, EventArgs e) {
-            MakeTurn(true);
+            processor.NextTurn = true;
         }
 
         private void repeatButton_Click(object sender, EventArgs e) {
@@ -182,6 +183,45 @@ namespace CrossZeroWindows {
 
         private void toMainMenuButton_Click(object sender, EventArgs e) {
             CloseWindow(DialogResult.Ignore);
+        }
+    }
+
+    public class PlayerPoint {
+        public bool Selected { get; set; }
+        public Point Value { get; set; } 
+
+        public PlayerPoint() {
+            Selected = false;
+        }
+    }
+
+    public class TTCWindowsProcessor : TTCGameProcessor {
+        const int sleepInterval = 50;
+
+        public delegate void RenderFieldHandler(ReadOnlyTable field);
+        public event RenderFieldHandler RenderField;
+        public delegate void RenderResultHandler(ReadOnlyTable field, EndResult result);
+        public event RenderResultHandler RenderResult;
+
+        readonly bool delayTurn;
+
+        public bool NextTurn { private get; set; } = true;
+
+        public TTCWindowsProcessor(int size, IPlayer player1, IPlayer player2, bool allAI) : base(size, player1, player2, Marks.Cross) {
+            delayTurn = allAI;
+        }
+
+        public override void RenderGameField(ReadOnlyTable gameField) {
+            RenderField(gameField);
+            if (delayTurn) {
+                while (!NextTurn)
+                    Task.Delay(sleepInterval);
+                NextTurn = false;
+            }
+        }
+
+        public override void RenderLastFieldAndResult(ReadOnlyTable gameField, EndResult result) {
+            RenderResult(gameField, result);
         }
     }
 }
